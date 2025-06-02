@@ -1,4 +1,6 @@
-﻿namespace BelleCroissantLyonnaisAPI.Models
+﻿using System.Text.Json.Serialization;
+
+namespace BelleCroissantLyonnaisAPI.Models
 {
     public class Product
     {
@@ -12,6 +14,7 @@
         public bool active { get; set; }
         public DateOnly introduced_date { get; set; }
 
+        [JsonIgnore]
         public Category? category { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace BelleCroissantLyonnaisAPI.Models
+﻿using System.Text.Json.Serialization;
+
+namespace BelleCroissantLyonnaisAPI.Models
 {
     public class Customer
     {
@@ -18,6 +20,7 @@
         public int preferred_category { get; set; }
         public bool churned { get; set; }
 
+        [JsonIgnore]
         public Membership? membership { get; set; }
     }
 }
