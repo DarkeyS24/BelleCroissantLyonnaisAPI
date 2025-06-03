@@ -23,47 +23,48 @@ namespace BelleCroissantLyonnaisAPI.Controllers
 
         // GET: Customers
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var appContextDB = _context.Customers.Include(c => c.membership);
-            return View(await appContextDB.ToListAsync());
+            var appContextDB = _context.Customers.Include(c => c.membership).ToList();
+            return Ok(appContextDB);
         }
 
         // GET: Customers/Details/5
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var customer = _context.Customers
                 .Include(c => c.membership)
-                .FirstOrDefaultAsync(m => m.customer_id == id);
+                .FirstOrDefault(m => m.customer_id == id);
             if (customer == null)
             {
-                return NotFound();
+                return NotFound("Customer not founded");
             }
 
-            return View(customer);
+            return Ok(customer);
         }
 
         // POST: Customers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("customer_id,full_name,age,gender,postal_code,email,phone_number,membership_id,join_date,last_purchase_date,total_spending,average_order_value,frequency,preferred_category,churned")] Customer customer)
+        public IActionResult Create(Customer customer)
         {
+            int id = _context.Customers.Max(c => c.customer_id);
+            var newCustomer = _context.Customers.FirstOrDefault(c => c.customer_id == id);
             if (ModelState.IsValid)
             {
+                customer.customer_id = newCustomer.customer_id + 1;
                 _context.Add(customer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.SaveChanges();
+                return Ok(customer);
             }
-            ViewData["membership_id"] = new SelectList(_context.Memberships, "membership_id", "membership_id", customer.membership_id);
-            return View(customer);
+            return BadRequest("Customer not created");
         }
 
 
@@ -71,8 +72,7 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut("{id:int}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("customer_id,full_name,age,gender,postal_code,email,phone_number,membership_id,join_date,last_purchase_date,total_spending,average_order_value,frequency,preferred_category,churned")] Customer customer)
+        public IActionResult Edit(int id, [Bind("customer_id,full_name,age,gender,postal_code,email,phone_number,membership_id,join_date,last_purchase_date,total_spending,average_order_value,frequency,preferred_category,churned")] Customer customer)
         {
             if (id != customer.customer_id)
             {
@@ -83,8 +83,8 @@ namespace BelleCroissantLyonnaisAPI.Controllers
             {
                 try
                 {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
+                    _context.Entry(customer).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -97,10 +97,9 @@ namespace BelleCroissantLyonnaisAPI.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return Ok(customer);
             }
-            ViewData["membership_id"] = new SelectList(_context.Memberships, "membership_id", "membership_id", customer.membership_id);
-            return View(customer);
+            return BadRequest("Customer not updated");
         }
 
         private bool CustomerExists(int id)

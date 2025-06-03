@@ -51,11 +51,14 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         [HttpPost]
         public IActionResult Create([Bind("product_id,product_name,category_id,ingredients,price,cost,seasonal,active,introduced_date")] Product product)
         {
+            int id = _context.Products.Max(o => o.product_id);
+            var newProduct = _context.Products.FirstOrDefault(o => o.product_id == id);
             if (ModelState.IsValid)
             {
+                product.product_id = newProduct.product_id + 1;
                 _context.Add(product);
                 _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Ok(product);
             }
             return Ok(product);
         }
@@ -73,8 +76,8 @@ namespace BelleCroissantLyonnaisAPI.Controllers
 
                 try
                 {
-                    _context.Update(product);
-                    _context.SaveChangesAsync();
+                    _context.Entry(product).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -101,8 +104,8 @@ namespace BelleCroissantLyonnaisAPI.Controllers
                 _context.Products.Remove(product);
             }
 
-            _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            _context.SaveChanges();
+            return Ok(product);
         }
 
         private bool ProductExists(int id)

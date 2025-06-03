@@ -23,61 +23,58 @@ namespace BelleCroissantLyonnaisAPI.Controllers
 
         // GET: Orders
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var appContextDB = _context.Orders.Include(o => o.channel).Include(o => o.customer).Include(o => o.payment).Include(o => o.product);
-            return View(await appContextDB.ToListAsync());
+            var appContextDB = _context.Orders.Include(o => o.channel).Include(o => o.customer).Include(o => o.payment).Include(o => o.product).ToList();
+            return Ok(appContextDB);
         }
 
         // GET: Orders/Details/5
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return NotFound($"Id:{id} it's an inexistent order");
             }
 
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.channel)
                 .Include(o => o.customer)
                 .Include(o => o.payment)
                 .Include(o => o.product)
-                .FirstOrDefaultAsync(m => m.order_id == id);
+                .FirstOrDefault(m => m.order_id == id);
             if (order == null)
             {
                 return NotFound("Order not found");
             }
 
-            return View(order);
+            return Ok(order);
         }
 
         // POST: Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("order_id,customer_id,date,time,product_id,quantity,price,payment_method_id,channel_id,store_id,promotion_id,discount_amount")] Order order)
+        public IActionResult Create(Order order)
         {
+            int id = _context.Orders.Max(o => o.order_id);
+            var newOrder = _context.Orders.FirstOrDefault(o => o.order_id == id);
             if (ModelState.IsValid)
             {
+                order.order_id = newOrder.order_id + 1; // Assuming order_id is auto-incremented
                 _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.SaveChanges();
+                return Ok(order);
             }
-            ViewData["channel_id"] = new SelectList(_context.Channels, "channel_id", "channel_id", order.channel_id);
-            ViewData["customer_id"] = new SelectList(_context.Customers, "customer_id", "customer_id", order.customer_id);
-            ViewData["payment_method_id"] = new SelectList(_context.Payment_Methods, "payment_method_id", "payment_method_id", order.payment_method_id);
-            ViewData["product_id"] = new SelectList(_context.Products, "product_id", "product_id", order.product_id);
-            return View(order);
+            return BadRequest("Order can't be created");
         }
 
         // PUT: Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut("{id:int}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("order_id,customer_id,date,time,product_id,quantity,price,payment_method_id,channel_id,store_id,promotion_id,discount_amount")] Order order)
+        public IActionResult Edit(int id, Order order)
         {
             if (id != order.order_id)
             {
@@ -88,8 +85,8 @@ namespace BelleCroissantLyonnaisAPI.Controllers
             {
                 try
                 {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
+                    _context.Entry(order).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -102,13 +99,9 @@ namespace BelleCroissantLyonnaisAPI.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return Ok(order);
             }
-            ViewData["channel_id"] = new SelectList(_context.Channels, "channel_id", "channel_id", order.channel_id);
-            ViewData["customer_id"] = new SelectList(_context.Customers, "customer_id", "customer_id", order.customer_id);
-            ViewData["payment_method_id"] = new SelectList(_context.Payment_Methods, "payment_method_id", "payment_method_id", order.payment_method_id);
-            ViewData["product_id"] = new SelectList(_context.Products, "product_id", "product_id", order.product_id);
-            return View(order);
+            return BadRequest("Order can't be updated");
         }
 
         private bool OrderExists(int id)

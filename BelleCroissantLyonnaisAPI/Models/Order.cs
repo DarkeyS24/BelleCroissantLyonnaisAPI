@@ -13,8 +13,8 @@ namespace BelleCroissantLyonnaisAPI.Models
         public decimal price { get; set; }
         public int payment_method_id { get; set; }
         public int channel_id { get; set; }
-        public int store_id { get; set; }
-        public int promotion_id { get; set; }
+        public int? store_id { get; set; }
+        public int? promotion_id { get; set; }
         public decimal discount_amount { get; set; }
 
         [JsonIgnore]

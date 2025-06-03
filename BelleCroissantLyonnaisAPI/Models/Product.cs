@@ -14,7 +14,6 @@ namespace BelleCroissantLyonnaisAPI.Models
         public bool active { get; set; }
         public DateOnly introduced_date { get; set; }
 
-        [JsonIgnore]
         public Category? category { get; set; }
     }
 }
