@@ -16,10 +16,12 @@ namespace BelleCroissantLyonnaisAPI.Models
         public int? store_id { get; set; }
         public int? promotion_id { get; set; }
         public decimal discount_amount { get; set; }
+        public string status { get; set; } = string.Empty;
 
         public Customer customer { get; set; }
         public Product product { get; set; }
         public Channel channel { get; set; }
         public Payment_Method payment { get; set; }
+
     }
 }

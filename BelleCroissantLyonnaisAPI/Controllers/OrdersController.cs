@@ -74,34 +74,32 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut("{id:int}")]
-        public IActionResult Edit(int id, Order order)
+        public IActionResult Edit(Order order, int id)
         {
             if (id != order.order_id)
             {
                 return NotFound("JSON id doesn't match with the parameter id");
             }
-
-            if (ModelState.IsValid)
+            else if (!OrderExists(order.order_id))
+            {
+                return NotFound($"Order with id: {order.order_id} doesn't exist");
+            }
+            else
             {
                 try
                 {
                     _context.Entry(order).State = EntityState.Modified;
                     _context.SaveChanges();
+                    return Ok(order);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderExists(order.order_id))
-                    {
-                        return NotFound($"Order with id: {order.order_id} doesn't exist");
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return BadRequest("Concurrency error: the order was modified by another user. Please reload the order and try again.");
                 }
-                return Ok(order);
             }
-            return BadRequest("Order can't be updated");
+
+
+                
         }
 
         private bool OrderExists(int id)

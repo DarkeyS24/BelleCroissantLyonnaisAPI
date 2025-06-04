@@ -49,18 +49,18 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public IActionResult Create([Bind("product_id,product_name,category_id,ingredients,price,cost,seasonal,active,introduced_date")] Product product)
+        public IActionResult Create(Product product)
         {
             int id = _context.Products.Max(o => o.product_id);
             var newProduct = _context.Products.FirstOrDefault(o => o.product_id == id);
-            if (ModelState.IsValid)
+            if (newProduct != null)
             {
                 product.product_id = newProduct.product_id + 1;
                 _context.Add(product);
-                _context.SaveChangesAsync();
+                _context.SaveChanges();
                 return Ok(product);
             }
-            return Ok(product);
+            return BadRequest("Error adding product");
         }
 
         // PUT: Products/Edit/5
