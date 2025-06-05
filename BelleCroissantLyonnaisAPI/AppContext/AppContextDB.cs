@@ -16,6 +16,9 @@ namespace BelleCroissantLyonnaisAPI.AppContext
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Payment_Method> Payment_Methods { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<UserLogin> UserLogin { get; set; }
+        public DbSet<Mailing_Subscription> Mailing_Subscription { get; set; }
+        public DbSet<Delivery_Address> Delivery_Address { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +74,30 @@ namespace BelleCroissantLyonnaisAPI.AppContext
             modelBuilder.Entity<Category>(category =>
             {
                 category.HasKey(c => c.category_id).HasName("category_id");
+            });
+
+            modelBuilder.Entity<UserLogin>(user =>
+            {
+                user.HasKey(c => c.login_id).HasName("login_id");
+                user.Property(c => c.profile_picture).IsRequired().HasColumnType("Varchar(MAX)");
+                user.HasMany(c => c.Addresses)
+                     .WithOne()
+                     .HasForeignKey(a => a.login_id)
+                     .HasConstraintName("fk_deliveryaddresses");
+            });
+
+            modelBuilder.Entity<Mailing_Subscription>(mailing =>
+            {
+                mailing.HasKey(c => c.mailing_id).HasName("mailing_id");
+                mailing.Property(c => c.is_subscribed).HasConversion<bool>().IsRequired();
+            });
+
+            modelBuilder.Entity<Delivery_Address>(delivery =>
+            {
+                delivery.HasKey(c => c.delivery_address_id).HasName("delivery_address_id");
+                delivery.HasOne(c => c.UserLogin).WithOne()
+                    .HasForeignKey<Delivery_Address>(d => d.login_id)
+                    .HasConstraintName("fk_deliveryaddresses");
             });
         }
     }

@@ -18,10 +18,10 @@ namespace BelleCroissantLyonnaisAPI.Controllers
 
         // GET: Products
         [HttpGet]
-        public IActionResult Index()
+        public List<Product> Index()
         {
             var appContextDB = _context.Products.Include(p => p.category).ToList();
-            return  Ok(appContextDB);
+            return  appContextDB;
         }
 
         // GET: Products/Details/5
