@@ -75,7 +75,7 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         public ActionResult Login(ValidateLogin login)
         {
                 var existingUser = _context.User_Login
-                       .FirstOrDefault(u => u.email == login.email);
+                       .FirstOrDefault(u => u.email.Equals(login.email) && u.password.Equals(login.password));
 
                 if (existingUser != null)
                 {
@@ -89,10 +89,10 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         }
 
         [HttpPost("Forgot-password")]
-        public ActionResult Forgot_Password(string email)
+        public ActionResult Forgot_Password(User_Login user)
         {
             var existingUser = _context.User_Login
-                .FirstOrDefault(u => u.email == email);
+                .FirstOrDefault(u => u.email.Equals(user.email));
             existingUser.security_answer = HashAnswer(existingUser.security_answer); // Hash the security answer
 
             if (existingUser != null)
@@ -126,17 +126,14 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         public ActionResult Reset_Password(User_Login login)
         {
             var existingUser = _context.User_Login
-                .FirstOrDefault(u => u.security_question.Equals(login.security_question) && u.security_answer.Equals(login.security_answer));
+                .FirstOrDefault(u => u.login_id == login.login_id && u.security_answer.Equals(login.security_answer));
             if (existingUser != null)
             {
-                existingUser.password = login.password; // Update the password
-                _context.Entry(existingUser).State = EntityState.Modified;
-                _context.SaveChanges();
-                return Ok("Password reset has been completed successfully");
+                return Ok("The answer is correct");
             }
             else
             {
-                return NotFound("Question and answer doesn't match");
+                return NotFound("Incorrect answer");
             }
         }
 
