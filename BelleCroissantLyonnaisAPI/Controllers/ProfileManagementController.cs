@@ -3,6 +3,7 @@ using BelleCroissantLyonnaisAPI.AppContext;
 using BelleCroissantLyonnaisAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,12 +24,12 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         [HttpGet("profile/{id:int}")]
         public IActionResult Profile(int id)
         {
-            return Ok(_context.UserLogin.Include(u => u.Addresses).FirstOrDefault(u => u.login_id.Equals(id)));
+            return Ok(_context.User_Login.Include(u => u.Addresses).FirstOrDefault(u => u.login_id.Equals(id)));
         }
 
         // PUT api/profile + Request body(update)
         [HttpPut("profile")]
-        public IActionResult Profile(UserLogin login)
+        public IActionResult Profile(User_Login login)
         {
             if (login == null || login.login_id <= 0)
             {
@@ -37,6 +38,15 @@ namespace BelleCroissantLyonnaisAPI.Controllers
             else
             {
                 _context.Entry(login).State = EntityState.Modified;
+                if (!login.Addresses.IsNullOrEmpty())
+                {
+                    foreach (var address in login.Addresses)
+                    {
+                        address.login_id = login.login_id; // Ensure the address is linked to the correct user
+                        _context.Entry(address).State = EntityState.Modified;
+                        _context.SaveChanges();
+                    }
+                }
                 try
                 {
                     _context.SaveChanges();

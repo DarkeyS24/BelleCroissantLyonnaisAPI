@@ -1,6 +1,6 @@
 ﻿namespace BelleCroissantLyonnaisAPI.Models
 {
-    public class UserLogin
+    public class User_Login
     {
         public int login_id { get; set; }
         public string email { get; set; } = string.Empty;

@@ -40,14 +40,14 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         //}
 
         [HttpPost("register")]
-        public ActionResult Register(UserLogin login)
+        public ActionResult Register(User_Login login)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     // Check if the email already exists
-                    var existingUser = _context.UserLogin
+                    var existingUser = _context.User_Login
                         .FirstOrDefault(u => u.email == login.email);
 
                     if (existingUser != null)
@@ -57,7 +57,7 @@ namespace BelleCroissantLyonnaisAPI.Controllers
                     else
                     {
                         // Add the new user login to the database
-                        _context.UserLogin.Add(login);
+                        _context.User_Login.Add(login);
                         _context.SaveChanges();
                         // Optionally, you can redirect to a confirmation page or return a success message
                         return CreatedAtRoute("",new { id = login.login_id} ,login);
@@ -74,7 +74,7 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         [HttpPost("login")]
         public ActionResult Login(ValidateLogin login)
         {
-                var existingUser = _context.UserLogin
+                var existingUser = _context.User_Login
                        .FirstOrDefault(u => u.email == login.email);
 
                 if (existingUser != null)
@@ -91,7 +91,7 @@ namespace BelleCroissantLyonnaisAPI.Controllers
         [HttpPost("Forgot-password")]
         public ActionResult Forgot_Password(string email)
         {
-            var existingUser = _context.UserLogin
+            var existingUser = _context.User_Login
                 .FirstOrDefault(u => u.email == email);
             existingUser.security_answer = HashAnswer(existingUser.security_answer); // Hash the security answer
 
@@ -123,9 +123,9 @@ namespace BelleCroissantLyonnaisAPI.Controllers
 
 
         [HttpPost("Reset-password")]
-        public ActionResult Reset_Password(UserLogin login)
+        public ActionResult Reset_Password(User_Login login)
         {
-            var existingUser = _context.UserLogin
+            var existingUser = _context.User_Login
                 .FirstOrDefault(u => u.security_question.Equals(login.security_question) && u.security_answer.Equals(login.security_answer));
             if (existingUser != null)
             {

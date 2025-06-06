@@ -24,7 +24,7 @@ namespace BelleCroissantLyonnaisAPI.Controllers
             {
                 return BadRequest("Email cannot be null or empty.");
             }
-            var login = _context.UserLogin
+            var login = _context.User_Login
                 .FirstOrDefault(u => u.email.Equals(email));
             if (login == null)
             {

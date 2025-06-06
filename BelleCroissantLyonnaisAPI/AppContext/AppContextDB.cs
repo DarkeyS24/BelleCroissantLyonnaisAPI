@@ -16,7 +16,7 @@ namespace BelleCroissantLyonnaisAPI.AppContext
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Payment_Method> Payment_Methods { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<UserLogin> UserLogin { get; set; }
+        public DbSet<User_Login> User_Login { get; set; }
         public DbSet<Mailing_Subscription> Mailing_Subscription { get; set; }
         public DbSet<Delivery_Address> Delivery_Address { get; set; }
 
@@ -76,7 +76,7 @@ namespace BelleCroissantLyonnaisAPI.AppContext
                 category.HasKey(c => c.category_id).HasName("category_id");
             });
 
-            modelBuilder.Entity<UserLogin>(user =>
+            modelBuilder.Entity<User_Login>(user =>
             {
                 user.HasKey(c => c.login_id).HasName("login_id");
                 user.Property(c => c.profile_picture).IsRequired().HasColumnType("Varchar(MAX)");
@@ -95,9 +95,7 @@ namespace BelleCroissantLyonnaisAPI.AppContext
             modelBuilder.Entity<Delivery_Address>(delivery =>
             {
                 delivery.HasKey(c => c.delivery_address_id).HasName("delivery_address_id");
-                delivery.HasOne(c => c.UserLogin).WithOne()
-                    .HasForeignKey<Delivery_Address>(d => d.login_id)
-                    .HasConstraintName("fk_deliveryaddresses");
+                
             });
         }
     }
